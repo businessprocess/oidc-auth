@@ -44,11 +44,12 @@ class OidcAuthServiceProvider extends ServiceProvider
 
         $this->app->bind(Decoder::class, function (Application $app) {
             $class = $app['config']->get('auth.guards.oidc.decoder');
-            if ($class instanceof Decoder) {
-                return new $class;
+
+            if ($class && class_exists($class)) {
+                $class = new $class;
             }
 
-            return null;
+            return $class instanceof Decoder ? $class : null;
         });
 
         $this->app->bind(OidcService::class, function (Application $app) {

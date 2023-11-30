@@ -24,13 +24,8 @@ class Guard
         if ($user = $this->auth->guard('web')->user()) {
             return $user;
         }
-        $token = $request->header('authorization');
 
-        if ($sr = $request->get(OidcService::getShortKey())) {
-            $token = $this->service->tokenFromShort($sr);
-        }
-
-        if (! $token) {
+        if (! $token = $this->getTokenFromRequest($request)) {
             return null;
         }
 
@@ -39,7 +34,7 @@ class Guard
         }
 
         if ($model = $this->getModel()) {
-            $user = $model::find($payload->getBptUserId());
+            $user = $model::find($payload->getKey());
 
             event(new TokenAuthenticated($token));
 
@@ -47,6 +42,18 @@ class Guard
         }
 
         return (new User())->withToken($token)->setPayload($payload);
+    }
+
+    protected function getTokenFromRequest($request)
+    {
+        $token = $request->header('authorization');
+        $sr = $request->get(OidcService::getShortKey());
+
+        if (! $token && $sr) {
+            $token = $this->service->tokenFromShort($sr);
+        }
+
+        return $token;
     }
 
     protected function supportsTokens($user = null): bool
