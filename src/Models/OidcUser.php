@@ -29,16 +29,25 @@ class OidcUser
         return $this;
     }
 
+    /**
+     * @return string|null
+     */
     public function getId()
     {
         return $this->payload->getBptUserId();
     }
 
+    /**
+     * @return string|null
+     */
     public function getKey()
     {
         return $this->payload->getKey();
     }
 
+    /**
+     * @return string|null
+     */
     public function rt()
     {
         return $this->rt;

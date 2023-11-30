@@ -12,9 +12,9 @@ trait HasJwtToken
     protected $shortToken;
 
     /**
-     * @return string|null
+     * @throws UnauthorizedException
      */
-    public function token()
+    public function token(): string
     {
         if ($this->token && Oidc::check($this->token)) {
             return $this->token;
@@ -24,11 +24,9 @@ trait HasJwtToken
     }
 
     /**
-     * @return string
-     *
      * @throws UnauthorizedException
      */
-    public function shortToken()
+    public function shortToken(): string
     {
         if (! $this->shortToken) {
             $this->shortToken = Oidc::shortUser($this->token(), $this->getKey());

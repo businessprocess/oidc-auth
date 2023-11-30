@@ -11,7 +11,7 @@ class JwtDecoder implements Decoder
     /**
      * @throws \Exception
      */
-    public function decode(string $jwt, string $key, string $algorithm = 'RS256'): mixed
+    public function decode(string $jwt, string $key, string $algorithm = 'RS256'): array
     {
         return (array) JWT::decode($jwt, new Key($key, 'RS256'));
     }

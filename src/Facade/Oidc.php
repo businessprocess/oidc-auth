@@ -12,12 +12,10 @@ use OidcAuth\Service\OidcService;
  * @method static string token(string $bptUserId)
  * @method static User userAuthorize(string $login, string $password, array $payload = [], int $ttl = null)
  * @method static User serviceAuthorize(string $login = null, string $password = null, array $payload = [], int $ttl = null)
- * @method static User reauthorize(string $jwt = null, string $rt = null, string $st = null)
  * @method static Payload|bool check(string $jwt)
  * @method static string short(?string $jwt)
  * @method static string shortUser(?string $jwt, string $bptUserId)
- * @method static string tokenFromShort(string $sr)
- * @method static string publicKey()
+ * @method static string tokenFromShort(string $st)
  * @method static bool alive()
  */
 class Oidc extends Facade

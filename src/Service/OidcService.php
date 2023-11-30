@@ -32,54 +32,49 @@ class OidcService
         self::$shortKey = $shortKey;
     }
 
+    /**
+     * @throws UnauthorizedException
+     */
     public function serviceToken(): string
     {
-        $jwt = $this->repository->jwt($this->credential->login());
-
-        if (! $jwt) {
-            return $this->serviceAuthorize()->token();
-        }
-
-        if ($this->check($jwt)) {
-            return $jwt;
-        }
-
-        if ($rt = $this->repository->rt($jwt)) {
-            return $this->reauthorize($jwt, $rt)->token();
+        try {
+            return $this->token($this->credential->login());
+        } catch (UnauthorizedException $e) {
         }
 
         return $this->serviceAuthorize()->token();
     }
 
-    public function token(string $bptUserId): ?string
+    /**
+     * @throws UnauthorizedException
+     */
+    public function token(string $key): ?string
     {
-        $jwt = $this->repository->jwt($bptUserId);
+        $jwt = $this->repository->jwt($key);
 
-        if (! $jwt) {
-            return null;
+        if ($jwt) {
+            if ($this->check($jwt)) {
+                return $jwt;
+            }
+
+            if ($rt = $this->repository->rt($jwt)) {
+                return $this->reauthorize($jwt, $rt)->token();
+            }
         }
 
-        if ($this->check($jwt)) {
-            return $jwt;
-        }
-
-        if ($rt = $this->repository->rt($jwt)) {
-            return $this->reauthorize($jwt, $rt)->token();
-        }
-
-        return null;
+        throw new UnauthorizedException;
     }
 
-    public function tokenFromShort(string $sr): ?string
+    public function tokenFromShort(string $st): ?string
     {
         try {
-            return $this->reauthorize(null, null, $sr)->token();
-        } catch (\Exception $e) {
+            return $this->reauthorize(null, null, $st)->token();
+        } catch (UnauthorizedException $e) {
             return null;
         }
     }
 
-    private function authorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = Payload::REALM_USER): User
+    protected function authorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = Payload::REALM_USER): User
     {
         $response = $this->client->post('/authorize', array_filter(compact('login', 'password', 'realm', 'payload', 'ttl')))->throw();
 
@@ -103,7 +98,7 @@ class OidcService
         return $this->authorize($login, $password, $payload, $ttl, Payload::REALM_SERVICE);
     }
 
-    public function reauthorize(string $jwt = null, string $rt = null, string $st = null): User
+    protected function reauthorize(string $jwt = null, string $rt = null, string $st = null): User
     {
         $response = $this->client->get('/authorize', [], array_filter([
             'authorization' => $jwt,
@@ -146,7 +141,7 @@ class OidcService
             ->json('st');
     }
 
-    public function publicKey(): string
+    protected function publicKey(): string
     {
         if (! $key = $this->repository->publicKey()) {
             $key = $this->client->get('/public-key')->body();

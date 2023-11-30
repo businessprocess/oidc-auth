@@ -33,12 +33,12 @@ class Guard
             return null;
         }
 
+        event(new TokenAuthenticated($token));
+
         if ($model = $this->getModel()) {
             $user = $model::find($payload->getKey());
 
-            event(new TokenAuthenticated($token));
-
-            return $this->supportsTokens($user) ? $user->withToken($token) : $user;
+            return $user && $this->supportsTokens($user) ? $user->withToken($token) : $user;
         }
 
         return (new User())->withToken($token)->setPayload($payload);
@@ -47,10 +47,10 @@ class Guard
     protected function getTokenFromRequest($request)
     {
         $token = $request->header('authorization');
-        $sr = $request->get(OidcService::getShortKey());
+        $st = $request->get(OidcService::getShortKey());
 
-        if (! $token && $sr) {
-            $token = $this->service->tokenFromShort($sr);
+        if (! $token && $st) {
+            $token = $this->service->tokenFromShort($st);
         }
 
         return $token;
