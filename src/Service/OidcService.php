@@ -4,6 +4,7 @@ namespace OidcAuth\Service;
 
 use OidcAuth\Contracts\Decoder;
 use OidcAuth\Contracts\HttpClient;
+use OidcAuth\Exceptions\UnauthorizedException;
 use OidcAuth\Models\OidcUser as User;
 use OidcAuth\Repository\Credential;
 use OidcAuth\Repository\Payload;
@@ -127,14 +128,21 @@ class OidcService
         }
     }
 
-    public function short(string $jwt): ?string
+    /**
+     * @throws UnauthorizedException
+     */
+    public function short(?string $jwt): ?string
     {
-        return $this->client->get('/authorize/short', [], ['authorization' => $jwt])->json('st');
+        return $this->client->get('/authorize/short', [], ['authorization' => $jwt])->throw()->json('st');
     }
 
-    public function shortUser(string $jwt, string $bptUserId): ?string
+    /**
+     * @throws UnauthorizedException
+     */
+    public function shortUser(?string $jwt, string $bptUserId): ?string
     {
         return $this->client->post('/authorize/short-bpt-user', compact('jwt', 'bptUserId'), ['authorization' => $jwt])
+            ->throw()
             ->json('st');
     }
 

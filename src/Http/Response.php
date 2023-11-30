@@ -59,6 +59,11 @@ class Response implements ArrayAccess
         }
     }
 
+    /**
+     * @return $this
+     *
+     * @throws UnauthorizedException
+     */
     public function throw(): static
     {
         $callback = func_get_args()[0] ?? null;

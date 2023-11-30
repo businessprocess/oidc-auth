@@ -2,11 +2,14 @@
 
 namespace OidcAuth;
 
+use OidcAuth\Exceptions\UnauthorizedException;
 use OidcAuth\Facade\Oidc;
 
 trait HasJwtToken
 {
     protected $token;
+
+    protected $shortToken;
 
     /**
      * @return string|null
@@ -21,23 +24,17 @@ trait HasJwtToken
     }
 
     /**
-     * @return string|null
+     * @return string
+     *
+     * @throws UnauthorizedException
      */
-    public function short()
+    public function shortToken()
     {
-        $token = $this->token();
+        if (! $this->shortToken) {
+            $this->shortToken = Oidc::shortUser($this->token(), $this->getKey());
+        }
 
-        return $token ? Oidc::short($token) : null;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function shortUser()
-    {
-        $token = $this->token();
-
-        return $token ? Oidc::shortUser($token, $this->getKey()) : null;
+        return $this->shortToken;
     }
 
     /**
