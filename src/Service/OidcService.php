@@ -83,7 +83,7 @@ class OidcService
     {
         $response = $this->client->post('/authorize', array_filter(compact('login', 'password', 'realm', 'payload', 'ttl')))->throw();
 
-        return $this->repository->setUser(new User($response->json()));
+        return $this->repository->update(new User($response->json()));
     }
 
     public function userAuthorize(string $login, string $password, array $payload = [], int $ttl = null): User
@@ -105,13 +105,13 @@ class OidcService
 
     public function reauthorize(string $jwt = null, string $rt = null, string $st = null): User
     {
-        $response = $this->client->get('/authorize', [], [
+        $response = $this->client->get('/authorize', [], array_filter([
             'authorization' => $jwt,
             'authorization-rt' => $rt,
             'authorization-st' => $st,
-        ])->throw();
+        ]))->throw();
 
-        return $this->repository->setUser(new User($response->json()));
+        return $this->repository->update(new User($response->json()));
     }
 
     public function check(string $jwt): Payload|bool

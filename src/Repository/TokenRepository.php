@@ -11,31 +11,12 @@ class TokenRepository
     {
     }
 
-    public function setUser(OidcUser $user): OidcUser
+    public function update(OidcUser $user): OidcUser
     {
-        $this->setJwt($user->jwt(), $user->getKey());
-        $this->setRt($user->rt(), $user->jwt());
+        $this->setJwt($user->token(), $user->getKey());
+        $this->setRt($user->rt(), $user->token());
 
         return $user;
-    }
-
-    public function fill($data): static
-    {
-        $jwt = $data['jwt'] ?? null;
-        $rt = $data['rt'] ?? null;
-        $payload = $data['payload'] ?? null;
-
-        if ($jwt && $payload) {
-            $payload = new Payload($payload);
-
-            $this->setJwt($jwt, $payload->getKey());
-        }
-
-        if ($jwt && $rt) {
-            $this->setRt($rt, $jwt);
-        }
-
-        return $this;
     }
 
     private function setJwt(string $jwt, $key): void
