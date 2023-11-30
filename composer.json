@@ -1,0 +1,42 @@
+{
+  "name": "businessprocess/oidc-auth",
+  "description": "Package for JWT token auth",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "maveriks",
+      "email": "maveriks.echo@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "require": {
+    "php": "^8.0",
+    "guzzlehttp/guzzle": "^7.0",
+    "firebase/php-jwt": "^6.9"
+  },
+  "require-dev": {
+    "laravel/pint": "^1.1",
+    "phpunit/phpunit": "^9.3.3",
+    "laravel/framework": "^9.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "OidcAuth\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "OidcAuth\\OidcAuthServiceProvider"
+      ]
+    }
+  }
+}
