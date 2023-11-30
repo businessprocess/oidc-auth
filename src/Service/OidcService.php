@@ -4,12 +4,15 @@ namespace OidcAuth\Service;
 
 use OidcAuth\Contracts\Decoder;
 use OidcAuth\Contracts\HttpClient;
+use OidcAuth\Models\OidcUser as User;
 use OidcAuth\Repository\Credential;
 use OidcAuth\Repository\Payload;
 use OidcAuth\Repository\TokenRepository;
 
 class OidcService
 {
+    public static string $shortKey = 'token';
+
     public function __construct(
         protected HttpClient $client,
         protected TokenRepository $repository,
@@ -18,12 +21,22 @@ class OidcService
     ) {
     }
 
+    public static function getShortKey(): string
+    {
+        return self::$shortKey;
+    }
+
+    public static function setShortKey(string $shortKey): void
+    {
+        self::$shortKey = $shortKey;
+    }
+
     public function serviceToken(): string
     {
         $jwt = $this->repository->jwt($this->credential->login());
 
         if (! $jwt) {
-            return $this->serviceAuthorize()->jwt($this->credential->login());
+            return $this->serviceAuthorize()->token();
         }
 
         if ($this->check($jwt)) {
@@ -31,10 +44,10 @@ class OidcService
         }
 
         if ($rt = $this->repository->rt($jwt)) {
-            return $this->reauthorize($jwt, $rt)->jwt($this->credential->login());
+            return $this->reauthorize($jwt, $rt)->token();
         }
 
-        return $this->serviceAuthorize()->jwt($this->credential->login());
+        return $this->serviceAuthorize()->token();
     }
 
     public function token(string $bptUserId): ?string
@@ -50,25 +63,34 @@ class OidcService
         }
 
         if ($rt = $this->repository->rt($jwt)) {
-            return $this->reauthorize($jwt, $rt)->jwt($bptUserId);
+            return $this->reauthorize($jwt, $rt)->token();
         }
 
         return null;
     }
 
-    private function authorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = Payload::REALM_USER): TokenRepository
+    public function tokenFromShort(string $sr): ?string
+    {
+        try {
+            return $this->reauthorize(null, null, $sr)->token();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    private function authorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = Payload::REALM_USER): User
     {
         $response = $this->client->post('/authorize', array_filter(compact('login', 'password', 'realm', 'payload', 'ttl')))->throw();
 
-        return $this->repository->fill($response->json());
+        return $this->repository->setUser(new User($response->json()));
     }
 
-    public function userAuthorize(string $login, string $password, array $payload = [], int $ttl = null): TokenRepository
+    public function userAuthorize(string $login, string $password, array $payload = [], int $ttl = null): User
     {
         return $this->authorize($login, $password, $payload, $ttl);
     }
 
-    public function serviceAuthorize(string $login = null, string $password = null, array $payload = [], int $ttl = null): TokenRepository
+    public function serviceAuthorize(string $login = null, string $password = null, array $payload = [], int $ttl = null): User
     {
         $login ??= $this->credential->login();
         $password ??= $this->credential->password();
@@ -80,15 +102,15 @@ class OidcService
         return $this->authorize($login, $password, $payload, $ttl, Payload::REALM_SERVICE);
     }
 
-    public function reauthorize(string $jwt = null, string $rt = null, string $st = null): TokenRepository
+    public function reauthorize(string $jwt = null, string $rt = null, string $st = null): User
     {
         $response = $this->client->get('/authorize', [], [
-            'jwt' => $jwt,
-            'rt' => $rt,
-            'st' => $st,
-        ]);
+            'authorization' => $jwt,
+            'authorization-rt' => $rt,
+            'authorization-st' => $st,
+        ])->throw();
 
-        return $this->repository->fill($response->json());
+        return $this->repository->setUser(new User($response->json()));
     }
 
     public function check(string $jwt): Payload|bool
@@ -97,7 +119,7 @@ class OidcService
             if ($this->decoder) {
                 return new Payload($this->decoder->decode($jwt, $this->publicKey()));
             }
-            $response = $this->client->get('/authorize/check', [], compact('jwt'))->throw();
+            $response = $this->client->get('/authorize/check', [], ['authorization' => $jwt])->throw();
 
             return new Payload($response->json('payload'));
         } catch (\Exception $e) {
@@ -105,19 +127,14 @@ class OidcService
         }
     }
 
-    public function short(string $bptUserId): string
+    public function short(string $jwt): ?string
     {
-        $jwt = $this->repository->jwt($bptUserId);
-
-        return $this->client->get('/authorize/short', [], compact('jwt'))->json('st');
+        return $this->client->get('/authorize/short', [], ['authorization' => $jwt])->json('st');
     }
 
-    public function shortUser(string $bptUserId): string
+    public function shortUser(string $jwt, string $bptUserId): ?string
     {
-        $jwt = $this->repository->jwt($bptUserId);
-
-        return $this->client->post('/authorize/short-bpt-user', compact('jwt', 'bptUserId'), compact('jwt'))
-            ->throw()
+        return $this->client->post('/authorize/short-bpt-user', compact('jwt', 'bptUserId'), ['authorization' => $jwt])
             ->json('st');
     }
 

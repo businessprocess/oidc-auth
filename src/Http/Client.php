@@ -11,6 +11,7 @@ class Client implements HttpClient
 
     public function __construct($config = [])
     {
+        $this->processOptions($config);
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $config['url'],
             RequestOptions::HEADERS => [
@@ -25,7 +26,7 @@ class Client implements HttpClient
 
     public function post(string $uri, array $data = [], $headers = [])
     {
-        $response = $this->client->get($uri, [
+        $response = $this->client->post('api/v1'.$uri, [
             RequestOptions::HEADERS => $headers,
             RequestOptions::JSON => $data,
         ]);
@@ -35,11 +36,18 @@ class Client implements HttpClient
 
     public function get(string $uri, array $data = [], $headers = [])
     {
-        $response = $this->client->post($uri, [
+        $response = $this->client->get('api/v1'.$uri, [
             RequestOptions::HEADERS => $headers,
             RequestOptions::QUERY => $data,
         ]);
 
         return new Response($response);
+    }
+
+    private function processOptions(mixed $config): void
+    {
+        if (! isset($config['url'])) {
+            throw new \InvalidArgumentException('Url is required');
+        }
     }
 }

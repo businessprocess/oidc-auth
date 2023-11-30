@@ -1,7 +1,6 @@
 # oidc-auth
 JWT token auth service
 
-=============================
 ![PHP 8.x](https://img.shields.io/badge/PHP-%5E8.0-blue)
 [![Laravel 8.x](https://img.shields.io/badge/Laravel-8.x-orange.svg)](http://laravel.com)
 [![Yii 2.x](https://img.shields.io/badge/Yii-2.x-orange)](https://www.yiiframework.com/doc/guide/2.0/ru)
@@ -16,7 +15,7 @@ JWT token auth service
 Notification messenger channel to Laravel FrameWork v6.0 and above.
 
 ## Installation
-The recommended way to install channel is through
+The recommended way to install package is through
 [Composer](http://getcomposer.org).
 
 ```bash

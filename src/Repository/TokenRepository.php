@@ -3,11 +3,20 @@
 namespace OidcAuth\Repository;
 
 use OidcAuth\Contracts\Storage;
+use OidcAuth\Models\OidcUser;
 
 class TokenRepository
 {
     public function __construct(protected Storage $storage)
     {
+    }
+
+    public function setUser(OidcUser $user): OidcUser
+    {
+        $this->setJwt($user->jwt(), $user->getKey());
+        $this->setRt($user->rt(), $user->jwt());
+
+        return $user;
     }
 
     public function fill($data): static

@@ -2,7 +2,6 @@
 
 namespace OidcAuth;
 
-use App\Models\User;
 use Illuminate\Auth\RequestGuard;
 use Illuminate\Contracts\Auth\Factory;
 use Illuminate\Foundation\Application;
@@ -33,9 +32,11 @@ class OidcAuthServiceProvider extends ServiceProvider
             ], config('auth.guards.oidc', [])),
         ]);
 
-        if (! app()->configurationIsCached()) {
-            $this->mergeConfigFrom(__DIR__.'/../config/oidc-auth.php', 'oidc');
-        }
+        $this->mergeConfigFrom(__DIR__.'/../config/oidc-auth.php', 'oidc-auth');
+
+        $this->publishes([
+            __DIR__.'/../config/oidc-auth.php' => config_path('oidc-auth.php'),
+        ]);
 
         $this->app->bind(Storage::class, function (Application $app) {
             return $app->make(CacheStorage::class);
@@ -77,19 +78,6 @@ class OidcAuthServiceProvider extends ServiceProvider
             });
         });
 
-        $this->configureMacro();
-    }
-
-    private function configureMacro(): void
-    {
-        $provider = $this->app['config']->get('auth.guards.oidc.provider');
-        $model = $this->app['config']->get("auth.providers.{$provider}.model");
-
-        if ($model instanceof User) {
-            User::macro('token', function () {
-                return app()->make(OidcService::class)->token($this->getKey());
-            });
-        }
     }
 
     /**
