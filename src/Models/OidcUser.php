@@ -34,7 +34,7 @@ class OidcUser
      */
     public function getId()
     {
-        return $this->payload->getBptUserId();
+        return $this->payload?->getBptUserId();
     }
 
     /**
@@ -42,7 +42,7 @@ class OidcUser
      */
     public function getKey()
     {
-        return $this->payload->getKey();
+        return $this->payload?->getKey();
     }
 
     /**
@@ -51,5 +51,14 @@ class OidcUser
     public function rt()
     {
         return $this->rt;
+    }
+
+    public function getAttribute($key = null)
+    {
+        if ($attributes = $this->payload?->getAttributes()) {
+            return $key ? $attributes[$key] ?? null : $attributes;
+        }
+
+        return null;
     }
 }

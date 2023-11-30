@@ -14,12 +14,12 @@ class Client implements HttpClient
         $this->processOptions($config);
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $config['url'],
+            'http_errors' => false,
             RequestOptions::HEADERS => [
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',
                 RequestOptions::CONNECT_TIMEOUT => $config['connect_timeout'] ?? 80,
                 RequestOptions::TIMEOUT => $config['timeout'] ?? 30,
-                'http_errors' => false,
             ],
         ]);
     }
