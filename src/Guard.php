@@ -33,7 +33,7 @@ class Guard
             return null;
         }
 
-        event(new TokenAuthenticated($token));
+        event(new TokenAuthenticated($token, $payload));
 
         if ($model = $this->getModel()) {
             $user = $model::find($payload->getKey());
