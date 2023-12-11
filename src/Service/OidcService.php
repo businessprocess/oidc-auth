@@ -12,24 +12,12 @@ use OidcAuth\Repository\TokenRepository;
 
 class OidcService
 {
-    public static string $shortKey = 'st';
-
     public function __construct(
         protected HttpClient $client,
         protected TokenRepository $repository,
         protected Credential $credential,
         protected ?Decoder $decoder = null
     ) {
-    }
-
-    public static function getShortKey(): string
-    {
-        return self::$shortKey;
-    }
-
-    public static function setShortKey(string $shortKey): void
-    {
-        self::$shortKey = $shortKey;
     }
 
     /**

@@ -33,23 +33,36 @@ class Guard
             return null;
         }
 
-        event(new TokenAuthenticated($token, $payload));
+        $user = (new User())->withToken($token)->setPayload($payload);
+
+        event(new TokenAuthenticated($user));
+
+        if (is_callable(Oidc::$userAuthenticationCallback)) {
+            return (Oidc::$userAuthenticationCallback)($user);
+        }
 
         if ($model = $this->getModel()) {
+            if (is_callable(Oidc::$userProviderCallback)) {
+                return (Oidc::$userProviderCallback)($model, $payload);
+            }
+
             $user = $model::find($payload->getKey());
 
             return $user && $this->supportsTokens($user) ? $user->withToken($token) : $user;
         }
 
-        return (new User())->withToken($token)->setPayload($payload);
+        return $user;
     }
 
     protected function getTokenFromRequest($request)
     {
-        $token = $request->header('authorization');
-        $st = $request->get(OidcService::getShortKey());
+        if (is_callable(Oidc::$tokenRetrievalCallback)) {
+            return (Oidc::$tokenRetrievalCallback)($request);
+        }
 
-        if (! $token && $st) {
+        $token = $request->header('authorization');
+
+        if ($st = $request->get(Oidc::$shortKey)) {
             $token = $this->service->tokenFromShort($st);
         }
 

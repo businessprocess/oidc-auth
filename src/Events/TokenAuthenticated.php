@@ -2,11 +2,11 @@
 
 namespace OidcAuth\Events;
 
-use OidcAuth\Repository\Payload;
+use OidcAuth\Models\OidcUser;
 
 class TokenAuthenticated
 {
-    public function __construct(public string $token, public Payload $payload)
+    public function __construct(public OidcUser $user)
     {
     }
 }
