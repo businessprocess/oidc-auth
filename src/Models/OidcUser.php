@@ -9,6 +9,8 @@ class OidcUser
 {
     use HasJwtToken;
 
+    protected $id;
+
     protected ?string $rt;
 
     protected ?Payload $payload = null;
@@ -20,6 +22,7 @@ class OidcUser
         if (! empty($data['payload'])) {
             $this->payload = new Payload($data['payload']);
         }
+        $this->id = $this->payload?->getBptUserId();
     }
 
     public function setPayload(Payload $payload): static
@@ -34,7 +37,7 @@ class OidcUser
      */
     public function getId()
     {
-        return $this->payload?->getBptUserId();
+        return $this->id;
     }
 
     /**
@@ -60,5 +63,25 @@ class OidcUser
         }
 
         return null;
+    }
+
+    public function __toString()
+    {
+        return (string) $this->getId();
+    }
+
+    public function __toArray()
+    {
+        return $this->toArray();
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'key' => $this->getKey(),
+            'rt' => $this->rt(),
+            'payload' => $this->payload?->getAttributes(),
+        ];
     }
 }
