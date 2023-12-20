@@ -122,9 +122,9 @@ class OidcService
     /**
      * @throws UnauthorizedException
      */
-    public function shortUser(?string $jwt, string $bptUserId): ?string
+    public function shortUser(?string $jwt, string $bptUserId, array $payload = []): ?string
     {
-        return $this->client->post('/authorize/short-bpt-user', compact('jwt', 'bptUserId'), ['authorization' => $jwt])
+        return $this->client->post('/authorize/short-bpt-user', compact('jwt', 'bptUserId', 'payload'), ['authorization' => $jwt])
             ->throw()
             ->json('st');
     }
