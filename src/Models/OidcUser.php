@@ -56,6 +56,11 @@ class OidcUser
         return $this->rt;
     }
 
+    public function getPayload(): ?Payload
+    {
+        return $this->payload;
+    }
+
     public function getAttribute($key = null)
     {
         if ($attributes = $this->payload?->getAttributes()) {

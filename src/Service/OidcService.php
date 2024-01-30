@@ -62,6 +62,15 @@ class OidcService
         }
     }
 
+    public function userFromShort(string $st): ?User
+    {
+        try {
+            return $this->reauthorize(null, null, $st);
+        } catch (UnauthorizedException $e) {
+            return null;
+        }
+    }
+
     protected function authorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = Payload::REALM_USER): User
     {
         $response = $this->client->post('/authorize', array_filter(compact('login', 'password', 'realm', 'payload', 'ttl')))->throw();

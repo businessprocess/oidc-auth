@@ -16,6 +16,7 @@ use OidcAuth\Service\OidcService;
  * @method static string short(?string $jwt, array $payload = [])
  * @method static string shortUser(?string $jwt, string $bptUserId, array $payload = [])
  * @method static string tokenFromShort(string $st)
+ * @method static string userFromShort(string $st)
  * @method static bool alive()
  */
 class Oidc extends Facade

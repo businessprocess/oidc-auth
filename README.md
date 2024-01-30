@@ -67,5 +67,6 @@ class User extends Authenticatable
 | short            | Get service short token          | string       |
 | shortUser        | Get user short token             | string       |
 | tokenFromShort   | Get jwt token from short token   | string       |
+| userFromShort    | Get jwt user from short token    | User         |
 | publicKey        | Get public key                   | string       |
 | alive            | Check is node is alive           | bool         |
