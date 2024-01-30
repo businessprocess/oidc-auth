@@ -14,7 +14,7 @@ class Client implements HttpClient
         $this->processOptions($config);
         $this->client = new \GuzzleHttp\Client([
             'base_uri' => $config['url'],
-            'http_errors' => false,
+            RequestOptions::HTTP_ERRORS => false,
             RequestOptions::HEADERS => [
                 'Content-Type' => 'application/json',
                 'Accept' => 'application/json',

@@ -114,9 +114,11 @@ class OidcService
     /**
      * @throws UnauthorizedException
      */
-    public function short(?string $jwt): ?string
+    public function short(?string $jwt, array $payload = []): ?string
     {
-        return $this->client->get('/authorize/short', [], ['authorization' => $jwt])->throw()->json('st');
+        $method = empty($payload) ? 'get' : 'post';
+
+        return $this->client->{$method}('/authorize/short', compact('payload'), ['authorization' => $jwt])->throw()->json('st');
     }
 
     /**

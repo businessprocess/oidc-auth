@@ -4,11 +4,15 @@ namespace OidcAuth\Repository;
 
 use OidcAuth\Contracts\Storage;
 use OidcAuth\Models\OidcUser;
+use OidcAuth\Repository\Storage\ArrayStorage;
 
 class TokenRepository
 {
-    public function __construct(protected Storage $storage)
+    private Storage $storage;
+
+    public function __construct(?Storage $storage = null)
     {
+        $this->storage = $storage ?? new ArrayStorage();
     }
 
     public function update(OidcUser $user): OidcUser
