@@ -12,7 +12,7 @@ class TokenRepository
 
     public function __construct(?Storage $storage = null)
     {
-        $this->storage = $storage ?? new ArrayStorage();
+        $this->storage = $storage ?? new ArrayStorage;
     }
 
     public function update(OidcUser $user): OidcUser

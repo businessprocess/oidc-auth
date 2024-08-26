@@ -10,7 +10,7 @@ use OidcAuth\Service\OidcService;
 /**
  * @method static string serviceToken()
  * @method static string token(string $bptUserId)
- * @method static User userAuthorize(string $login, string $password, array $payload = [], int $ttl = null)
+ * @method static User userAuthorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = null)
  * @method static User serviceAuthorize(string $login = null, string $password = null, array $payload = [], int $ttl = null)
  * @method static Payload|bool check(string $jwt)
  * @method static string short(?string $jwt, array $payload = [])

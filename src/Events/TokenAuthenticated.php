@@ -6,7 +6,5 @@ use OidcAuth\Models\OidcUser;
 
 class TokenAuthenticated
 {
-    public function __construct(public OidcUser $user)
-    {
-    }
+    public function __construct(public OidcUser $user) {}
 }

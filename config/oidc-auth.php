@@ -6,4 +6,5 @@ return [
         'login' => env('OIDC_AUTH_LOGIN'),
         'password' => env('OIDC_AUTH_PASSWORD'),
     ],
+    'realm' => env('OIDC_AUTH_REALM'),
 ];

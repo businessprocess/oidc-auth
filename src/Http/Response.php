@@ -55,7 +55,7 @@ class Response implements ArrayAccess
     public function toException()
     {
         if ($this->failed()) {
-            return new UnauthorizedException();
+            return new UnauthorizedException;
         }
     }
 

@@ -15,9 +15,7 @@ class Guard
      *
      * @param  null  $provider
      */
-    public function __construct(protected AuthFactory $auth, protected OidcService $service, protected $provider = null)
-    {
-    }
+    public function __construct(protected AuthFactory $auth, protected OidcService $service, protected $provider = null) {}
 
     public function __invoke(Request $request): mixed
     {
@@ -33,7 +31,7 @@ class Guard
             return null;
         }
 
-        $user = (new User())->withToken($token)->setPayload($payload);
+        $user = (new User)->withToken($token)->setPayload($payload);
 
         event(new TokenAuthenticated($user));
 

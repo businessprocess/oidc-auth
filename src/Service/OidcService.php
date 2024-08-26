@@ -17,8 +17,7 @@ class OidcService
         protected TokenRepository $repository,
         protected Credential $credential,
         protected ?Decoder $decoder = null
-    ) {
-    }
+    ) {}
 
     /**
      * @throws UnauthorizedException
@@ -71,19 +70,21 @@ class OidcService
         }
     }
 
-    protected function authorize(string $login, string $password, array $payload = [], int $ttl = null, $realm = Payload::REALM_USER): User
+    protected function authorize(string $login, string $password, array $payload = [], ?int $ttl = null, $realm = Payload::REALM_SERVICE): User
     {
         $response = $this->client->post('/authorize', array_filter(compact('login', 'password', 'realm', 'payload', 'ttl')))->throw();
 
         return $this->repository->update(new User($response->json()));
     }
 
-    public function userAuthorize(string $login, string $password, array $payload = [], int $ttl = null): User
+    public function userAuthorize(string $login, string $password, array $payload = [], ?int $ttl = null, $realm = null): User
     {
-        return $this->authorize($login, $password, $payload, $ttl);
+        $realm ??= Payload::getDefaultRealm();
+
+        return $this->authorize($login, $password, $payload, $ttl, $realm);
     }
 
-    public function serviceAuthorize(string $login = null, string $password = null, array $payload = [], int $ttl = null): User
+    public function serviceAuthorize(?string $login = null, ?string $password = null, array $payload = [], ?int $ttl = null): User
     {
         $login ??= $this->credential->login();
         $password ??= $this->credential->password();
@@ -92,10 +93,10 @@ class OidcService
             throw new \InvalidArgumentException('Login and password is required');
         }
 
-        return $this->authorize($login, $password, $payload, $ttl, Payload::REALM_SERVICE);
+        return $this->authorize($login, $password, $payload, $ttl);
     }
 
-    protected function reauthorize(string $jwt = null, string $rt = null, string $st = null): User
+    protected function reauthorize(?string $jwt = null, ?string $rt = null, ?string $st = null): User
     {
         $response = $this->client->get('/authorize', [], array_filter([
             'authorization' => $jwt,
@@ -109,12 +110,13 @@ class OidcService
     public function check(string $jwt): Payload|bool
     {
         try {
-            if ($this->decoder) {
-                return new Payload($this->decoder->decode($jwt, $this->publicKey()));
-            }
-            $response = $this->client->get('/authorize/check', [], ['authorization' => $jwt])->throw();
+            $result = $this->decoder
+                ? $this->decoder->decode($jwt, $this->publicKey())
+                : $this->client->get('/authorize/check', [], ['authorization' => $jwt])->throw()->json('payload');
 
-            return new Payload($response->json('payload'));
+            $payload = new Payload($result);
+
+            return $payload->isValidRealm() ? $payload : false;
         } catch (\Exception $e) {
             return false;
         }

@@ -9,10 +9,7 @@ class CacheStorage implements Storage
 {
     private string $prefix = 'oidc';
 
-    public function __construct(protected Repository $repository)
-    {
-
-    }
+    public function __construct(protected Repository $repository) {}
 
     public function get($key): mixed
     {

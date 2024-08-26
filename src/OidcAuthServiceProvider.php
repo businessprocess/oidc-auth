@@ -11,6 +11,7 @@ use OidcAuth\Contracts\Decoder;
 use OidcAuth\Contracts\Storage;
 use OidcAuth\Http\Client;
 use OidcAuth\Repository\Credential;
+use OidcAuth\Repository\Payload;
 use OidcAuth\Repository\Storage\CacheStorage;
 use OidcAuth\Repository\TokenRepository;
 use OidcAuth\Service\OidcService;
@@ -54,6 +55,10 @@ class OidcAuthServiceProvider extends ServiceProvider
 
         $this->app->bind(OidcService::class, function (Application $app) {
             $config = $app['config']->get('oidc-auth');
+
+            if ($config['realm'] ?? null) {
+                Payload::setDefaultRealm($config['realm']);
+            }
 
             return new OidcService(
                 new Client($config),
