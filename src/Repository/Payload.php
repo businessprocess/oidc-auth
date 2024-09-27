@@ -4,13 +4,18 @@ namespace OidcAuth\Repository;
 
 class Payload
 {
-    public static string $defaultRealm = self::REALM_USER;
+    public static string $defaultRealm = self::REALM_WEBWELLNESS;
 
-    public const REALM_USER = 'bpt';
+    public const REALM_WEBWELLNESS = 'bpt';
 
     public const REALM_AXIOMA = 'axioma';
 
     public const REALM_SERVICE = 'service';
+
+    public const REALM_ALIAS = [
+        self::REALM_WEBWELLNESS => 'ww',
+        self::REALM_AXIOMA => 'binarAxioma',
+    ];
 
     private string $realm;
 
@@ -37,7 +42,7 @@ class Payload
 
     public static function setDefaultRealm(string $defaultRealm): void
     {
-        if (in_array($defaultRealm, [self::REALM_USER, self::REALM_AXIOMA])) {
+        if (in_array($defaultRealm, array_merge([self::REALM_WEBWELLNESS, self::REALM_AXIOMA], self::REALM_ALIAS))) {
             self::$defaultRealm = $defaultRealm;
         }
     }
@@ -49,12 +54,12 @@ class Payload
 
     public function isWebwellnessRealm(): bool
     {
-        return $this->getRealm() === self::REALM_USER;
+        return in_array($this->getRealm(), [self::REALM_WEBWELLNESS, self::REALM_ALIAS[self::REALM_WEBWELLNESS]]);
     }
 
     public function isAxiomaRealm(): bool
     {
-        return $this->getRealm() === self::REALM_AXIOMA;
+        return in_array($this->getRealm(), [self::REALM_AXIOMA, self::REALM_ALIAS[self::REALM_AXIOMA]]);
     }
 
     public function isUserRealm(): bool
@@ -64,13 +69,13 @@ class Payload
 
     public function getKey(): ?string
     {
-        return $this->isUserRealm() ? $this->getBptUserId() : $this->getService();
+        return ! $this->isUserRealm() ? $this->getService() : $this->getBptUserId();
     }
 
     public function isValidRealm(): bool
     {
         if ($this->isUserRealm()) {
-            return $this->getRealm() === self::$defaultRealm;
+            return in_array(self::$defaultRealm, [$this->getRealm(), self::REALM_ALIAS[$this->getRealm()]]);
         }
 
         return true;
@@ -88,7 +93,7 @@ class Payload
 
     public function getBptUserId(): ?string
     {
-        return $this->bptUserId;
+        return $this->isValidRealm() ? $this->bptUserId : null;
     }
 
     public function getIat(): int

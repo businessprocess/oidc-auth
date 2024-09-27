@@ -137,6 +137,8 @@ class OidcService
      */
     public function shortUser(?string $jwt, string $bptUserId, array $payload = []): ?string
     {
+        $payload = array_merge($payload, ['realm' => Payload::$defaultRealm]);
+
         return $this->client->post('/authorize/short-bpt-user', compact('jwt', 'bptUserId', 'payload'), ['authorization' => $jwt])
             ->throw()
             ->json('st');
