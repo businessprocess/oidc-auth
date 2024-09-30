@@ -17,6 +17,7 @@ use OidcAuth\Service\OidcService;
  * @method static string|null shortUser(?string $jwt, string $bptUserId, array $payload = [])
  * @method static string|null tokenFromShort(string $st)
  * @method static User|null userFromShort(string $st)
+ * @method static string|null refreshToken(string $jwt)
  * @method static bool alive()
  *
  * @see OidcService
