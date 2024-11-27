@@ -144,13 +144,17 @@ class OidcService
             ->json('st');
     }
 
-    public function refreshToken(string $jwt): ?string
+    public function refreshToken(string $jwt, ?string $rt = null): ?User
     {
-        if ($rt = $this->repository->rt($jwt)) {
-            return $this->reauthorize($jwt, $rt)->token();
+        if (! $rt) {
+            $rt = $this->repository->rt($jwt);
         }
 
-        throw new UnauthorizedException;
+        try {
+            return $rt ? $this->reauthorize($jwt, $rt) : null;
+        } catch (UnauthorizedException $e) {
+            return null;
+        }
     }
 
     protected function publicKey(): string
